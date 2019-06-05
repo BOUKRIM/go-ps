@@ -56,12 +56,17 @@ func (p *UnixProcess) Refresh() error {
 	if err != nil {
 		return err
 	}
+	cmdPath := fmt.Sprintf("/proc/%d/cmdline", p.pid)
+	cmdLine, err := ioutil.ReadFile(cmdPath)
+	if err != nil {
+		return err
+	}
 
 	// First, parse out the image name
 	data := string(dataBytes)
 	binStart := strings.IndexRune(data, '(') + 1
 	binEnd := strings.IndexRune(data[binStart:], ')')
-	p.binary = data[binStart : binStart+binEnd]
+	p.binary = string(cmdLine)
 
 	// Move past the image name and start parsing the rest
 	// The name here might not be the full name
